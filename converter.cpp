@@ -12,58 +12,54 @@ class Converter {
     void convertTextToJson( ){
 
         vector<JsonFormat> objectJson;
+        string line = "";
+        string allContentInLine = "";
 
-        string line ="";
-        string allContent = "";
         ifstream file(_archiveName);
 
-        ofstream temporalArchive("temporal.txt");
-
-        isOpened( &file );
-
         while( getline( file, line, '\n') ){
-            allContent = allContent + " " + line;
+            allContentInLine = allContentInLine + " " +  line;
         }
 
-        temporalArchive << allContent;
-        temporalArchive.close();
+        ofstream onCreateTemporalFile("temporal.txt");
 
-        ifstream writeTemporalArchive("temporal.txt");
+        onCreateTemporalFile << allContentInLine;
 
-        while( getline( writeTemporalArchive, line , ',') ){
+        onCreateTemporalFile.close();
 
-            size_t position = 0;
-            string word = "";
+        ifstream onReadTemporalFile("temporal.txt");
 
-            while( ( position = line.find_first_not_of(" ", position) ) != string::npos ){
-                size_t nextSpace = line.find(" ", position);
+        while( getline( onReadTemporalFile , line, ',' ) ){
+           short position = 0;
+           size_t finalPosition = line.find_last_not_of(" ");
+          
+           while( true ){
+    
+              size_t isNotEmptySpaceIndex = line.find_first_not_of(" ", position);
 
-                if( nextSpace != string::npos ){
-                    
-                    size_t delimiter = line.find(":");
-                    JsonFormat newJson;
-                    
-                    newJson.key = line.substr( position, delimiter );
-                    newJson.value = line.substr( delimiter, nextSpace - 1 );
+              size_t firstPosicionIndex = line.find(":", isNotEmptySpaceIndex );
 
-                    objectJson.push_back( newJson );
-                    position = nextSpace + 1;
-                }
-                else{
-                    break;
-                }
-            }
+              size_t finalPositionWord = line.find(" ", firstPosicionIndex );
+
+              if( finalPositionWord - 1 != finalPosition ){
+                JsonFormat newJson;
+
+                newJson.key = line.substr( isNotEmptySpaceIndex, firstPosicionIndex - 1);
+                newJson.value = line.substr( firstPosicionIndex + 1, finalPositionWord -1 );
+
+                objectJson.push_back(newJson);
+
+                position = finalPositionWord;
+              } 
+              else {
+                break;
+              }
+           }
         }
+        //  for( short i =0; objectJson.size()> i; i++ ){
+        //     cout << objectJson[i].key << endl;
+        //  }
 
-        for( short i =0; objectJson.size() > i; i++ ){
-            cout << (string)objectJson[i].key << ":";
-            
-            visit([](auto&& arg){
-                cout << arg;
-            }, objectJson[i].value);
-            
-            cout << endl;
-        }
 
     }  
 
