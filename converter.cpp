@@ -30,38 +30,58 @@ class Converter {
         ifstream onReadTemporalFile("temporal.txt");
 
         while( getline( onReadTemporalFile , line, ',' ) ){
+
            short position = 0;
            size_t finalPosition = line.find_last_not_of(" ");
-          
+         
            while( true ){
-    
+
               size_t isNotEmptySpaceIndex = line.find_first_not_of(" ", position);
 
               size_t firstPosicionIndex = line.find(":", isNotEmptySpaceIndex );
 
-              size_t finalPositionWord = line.find(" ", firstPosicionIndex );
+              size_t finalPositionWord = line.find(" ", isNotEmptySpaceIndex );
 
-              if( finalPositionWord - 1 != finalPosition ){
+              
+              if( finalPositionWord != string::npos ){
                 JsonFormat newJson;
 
-                newJson.key = line.substr( isNotEmptySpaceIndex, firstPosicionIndex - 1);
-                newJson.value = line.substr( firstPosicionIndex + 1, finalPositionWord -1 );
+                newJson.key = line.substr( isNotEmptySpaceIndex, firstPosicionIndex - isNotEmptySpaceIndex);
+                newJson.value = line.substr( firstPosicionIndex + 1 , finalPositionWord - firstPosicionIndex );
 
                 objectJson.push_back(newJson);
 
                 position = finalPositionWord;
               } 
               else {
+                JsonFormat newJson;
+                newJson.key = line.substr( isNotEmptySpaceIndex, firstPosicionIndex - isNotEmptySpaceIndex);
+                newJson.value = line.substr( firstPosicionIndex + 1 , finalPosition - firstPosicionIndex);
+
+                objectJson.push_back(newJson);
+                position = 0;
                 break;
               }
+          
            }
         }
-        //  for( short i =0; objectJson.size()> i; i++ ){
-        //     cout << objectJson[i].key << endl;
-        //  }
+         for( short i =0; objectJson.size()> i; i++ ){
+            cout << objectJson[i].key << ":" << objectJson[i].value << endl;
+         }
 
 
     }  
+
+    void createJsonArchive( JsonFormat* data, string filename, short size ){
+        ofstream newJsonFile(filename + ".json");
+
+        newJsonFile << "[\n";
+        for( short i =0; size > i; i++ ){
+            string lineData = data[i].key + ":" + data[i].value + ",\n";
+            newJsonFile << "{\n";
+            newJsonFile << lineData;
+        }
+    }
 
     bool isOpened( ifstream* file ){
 

@@ -10,7 +10,7 @@ using namespace std;
 struct JsonFormat
 {
     string key;
-    variant< int, string > value;
+    string value;
 };
 
 
