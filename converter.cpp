@@ -13,6 +13,8 @@ class Converter {
 
         vector<JsonFormat> objectJson;
         string line = "";
+        short numLines = 0;
+        short numParameters =0;
         string allContentInLine = "";
 
         ifstream file(_archiveName);
@@ -33,7 +35,7 @@ class Converter {
 
            short position = 0;
            size_t finalPosition = line.find_last_not_of(" ");
-         
+           numParameters =1;
            while( true ){
 
               size_t isNotEmptySpaceIndex = line.find_first_not_of(" ", position);
@@ -62,25 +64,35 @@ class Converter {
                 position = 0;
                 break;
               }
-          
+              numParameters++;
            }
+           numLines++;
         }
-         for( short i =0; objectJson.size()> i; i++ ){
-            cout << objectJson[i].key << ":" << objectJson[i].value << endl;
-         }
 
+        createJsonArchive( objectJson, _archiveName, numLines, numParameters );
 
+        remove("temporal.txt");
     }  
 
-    void createJsonArchive( JsonFormat* data, string filename, short size ){
+    void createJsonArchive( vector<JsonFormat> data, string filename, short size, short parameters ){
+        cout << parameters<< endl;
+        cout << size << endl;
+        //Evaluar la extension del archivo(TASK)
         ofstream newJsonFile(filename + ".json");
 
         newJsonFile << "[\n";
         for( short i =0; size > i; i++ ){
-            string lineData = data[i].key + ":" + data[i].value + ",\n";
-            newJsonFile << "{\n";
-            newJsonFile << lineData;
+            newJsonFile << "\t{\n";
+            for( short j =0; parameters > j;j++ ){
+                string lineData =  
+                "\t\t\"" + data[j].key + "\"" 
+                 + ":" + "\"" 
+                 + data[j].value + "\"" + (( 2 > j )? ",\n": "\n" );
+                 newJsonFile << lineData;
+            }
+            newJsonFile << (( size -1 > i ) ? "\t},\n": "\t}");
         }
+        newJsonFile << "]";
     }
 
     bool isOpened( ifstream* file ){

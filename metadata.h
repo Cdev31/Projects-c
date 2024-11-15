@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <vector>
 #include <variant>
+#include <cstdio>
 
 using namespace std;
 
